@@ -5,7 +5,10 @@ using UnityEngine.SceneManagement; // namespace pour la gestion des scènes
 public class GameManager : NetworkBehaviour //pour un network object
 {
     public static GameManager instance;// Singleton pour parler au GameManager de n'importe où
- 
+
+    public bool partieEnCours { private set; get; } //permet de savoir si une partie est en cours
+    public bool partieTerminee { private set; get; } // permet de savoir si une partie est terminée
+
 
     // Création du singleton si nécessaire
     void Awake()
@@ -37,14 +40,21 @@ public class GameManager : NetworkBehaviour //pour un network object
     // Aucune vérification si partie déjà en cours
     void Update()
     {
-        
+        if (!IsHost) return;
+        if (partieEnCours) return;
+
+        if (NetworkManager.Singleton.ConnectedClientsList.Count == 2)
+        {
+            NouvellePartie();
+        }
     }
 
     // Activation d'une nouvelle partie lorsque 2 joueurs. On appelle la fonction de la balle qui
     // la place au milieu et qui lui donne une vélocité.
     public void NouvellePartie()
     {
-        
+        partieEnCours = true;
+        BalleRigid.instance.LanceBalleMilieu();
     }
 
    // Fonction appelée par le ScoreManager pour terminer la partie

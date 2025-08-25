@@ -1,5 +1,4 @@
 using UnityEngine;
-using System;
 using System.Collections;
 using Unity.Netcode;
 using TMPro;
@@ -35,19 +34,22 @@ public class BalleRigid : NetworkBehaviour // objet réseau
     */
     void Update()
     {
-        
+        if (!IsServer) return;
+
+        if (!GameManager.instance.partieEnCours) return; // Il faudra créer cette variable dans le GameManager
+
 
         //but client
         if (transform.position.x < -maxDistanceX)
         {
-            ScoreManager.instance.AugmenteScoreClient();
+           // ScoreManager.instance.AugmenteScoreClient();
             LanceBalleMilieu();
         }
 
         //but serveur (hôte)
         if (transform.position.x > maxDistanceX)
         {
-            ScoreManager.instance.AugmenteHoteScore();
+            //ScoreManager.instance.AugmenteHoteScore();
             LanceBalleMilieu();
         }
     }
@@ -61,7 +63,13 @@ public class BalleRigid : NetworkBehaviour // objet réseau
     */
     public void LanceBalleMilieu()
     {
-        
+        //nombreDeBonds = 0;
+        GetComponent<NetworkTransform>().Interpolate = false;
+        transform.position = new Vector3(0f, 0.5f, 0f);
+        GetComponent<Rigidbody>().linearVelocity = new Vector3(0, 0, 0);
+        if (GameManager.instance.partieTerminee) return; // Il faudra créer cette variable dans le GameManager
+        StartCoroutine(NouvelleBalle());
+
     }
 
     /* Coroutine qui fait suite à la fonction LanceBalleMilieu()
@@ -72,11 +80,11 @@ public class BalleRigid : NetworkBehaviour // objet réseau
     IEnumerator NouvelleBalle()
     {
         yield return new WaitForSecondsRealtime(1f);
-        GetComponent<NetworkTransform>().Interpolate = true;
+       GetComponent<NetworkTransform>().Interpolate = true;
 
-        System.Random random = new System.Random();
-        float aleaX = random.Next(0, 2) == 0 ? -10 : 10; //  opérateur ternaire
-        float aleaZ = random.Next(0, 2) == 0 ? -10 : 10;
+        
+        float aleaX = Random.Range(0, 2) == 0 ? -10 : 10; //  opérateur ternaire
+        float aleaZ = Random.Range(0, 2) == 0 ? -10 : 10;
 
         GetComponent<Rigidbody>().AddForce(aleaX, 0, aleaZ, ForceMode.Impulse);
     }

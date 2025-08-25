@@ -1,11 +1,12 @@
 using UnityEngine;
+using Unity.Netcode;
 
 /* Script du prefab (la barre) joueur identifié comme étant le joueur (Default player prefab) dans le NetWorkManager.
 Il sera automatiquement instancié (spawn) pour chaque client qui se connecte.
 */
 
 // c'est un objet réseau (NetworkObject). Le script doit dériver de NetworkBehaviour
-public class Barre : MonoBehaviour
+public class Barre : NetworkBehaviour
 {
     public float vitesse; // vitesse de déplacement de la barre du joueur
     public float distanceMaxZ; // distance maximale de déplacement de la barre du joueur
@@ -23,7 +24,21 @@ public class Barre : MonoBehaviour
     que la base de cette fonction est aussi exécutée.
 
     On place la barre du joueur : à gauche pour l'hôte et à droite pour l'autre client */
-   
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn(); //
+
+        if (IsServer)
+        {
+            transform.position = new Vector3(-20f, 0.5f, 0f); //position à ajuster selon votre jeu
+        }
+        else
+        {
+            transform.position = new Vector3(20f, 0.5f, 0f); //position à ajuster selon votre jeu
+        }
+    }
+
 
     /* Dans le Update, on appelle la fonction qui gère les touches et le déplacement seulement si on est le joueur local  
    Cela permet seulement au joueur local de contrôler les déplacements de sa barre.
@@ -36,6 +51,7 @@ public class Barre : MonoBehaviour
    4- La barre du client qui n'est pas serveur sur le client qui n'est pas serveur : appel de fonction */
     void Update()
     {
+        if (!IsLocalPlayer) return;
         GestionDeplacement();
     }
 
