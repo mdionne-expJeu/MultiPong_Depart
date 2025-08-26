@@ -42,14 +42,14 @@ public class BalleRigid : NetworkBehaviour // objet réseau
         //but client
         if (transform.position.x < -maxDistanceX)
         {
-           // ScoreManager.instance.AugmenteScoreClient();
+            ScoreManager.instance.AugmenteScoreClient();
             LanceBalleMilieu();
         }
 
         //but serveur (hôte)
         if (transform.position.x > maxDistanceX)
         {
-            //ScoreManager.instance.AugmenteHoteScore();
+            ScoreManager.instance.AugmenteHoteScore();
             LanceBalleMilieu();
         }
     }

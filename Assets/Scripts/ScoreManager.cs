@@ -32,6 +32,7 @@ public class ScoreManager : NetworkBehaviour // ne pas oublier component network
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
         if (IsServer)
         {
             scoreHote.Value = 0;

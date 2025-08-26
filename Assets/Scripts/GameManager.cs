@@ -60,12 +60,15 @@ public class GameManager : NetworkBehaviour //pour un network object
    // Fonction appelée par le ScoreManager pour terminer la partie
     public void FinPartie()
     {
-       
+        partieTerminee = true;
     }
 
   // Fonction appelée par le bouton Recommencer pour recommencer une partie
     public void Recommencer()
     {
-        
+        NetworkManager.Singleton.Shutdown(); // On arrête le NetworkManager pour réinitialiser la partie
+        Destroy(NetworkManager.gameObject);
+        partieEnCours = false; // On remet la partie en cours à false
+        SceneManager.LoadScene(0);// On recharge la scène de jeu
     }
 }
