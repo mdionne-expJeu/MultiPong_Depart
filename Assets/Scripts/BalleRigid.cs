@@ -10,6 +10,9 @@ public class BalleRigid : NetworkBehaviour // objet réseau
     public static BalleRigid instance; // Singleton
     float maxDistanceX = 25f; // moitié de la largeur de la table, pour savoir si un but est compté
     
+    private float nombreDeBonds; //compte du nombre de bonds de la balle // Servira plus tard
+
+    [SerializeField] private CamShaker camShaker;
 
     // Création d'un singleton. Il ne doit y avoir qu'une seule balle.
     private void Awake()
@@ -35,7 +38,7 @@ public class BalleRigid : NetworkBehaviour // objet réseau
     void Update()
     {
         if (!IsServer) return;
-
+        
         if (!GameManager.instance.partieEnCours) return; // Il faudra créer cette variable dans le GameManager
 
 
@@ -96,9 +99,31 @@ public class BalleRigid : NetworkBehaviour // objet réseau
     ou une barre. Utilisation d'un RPC pour que tous les clients voient le shake de la caméra.
     */
     private void OnCollisionEnter(Collision infoCollisions)
-    {
+   {
+       if (infoCollisions.gameObject.tag == "Barre")
+       {
+           nombreDeBonds++;
+
+           if (nombreDeBonds > 5)
+           {
+               Vector3 velociteActuelle = GetComponent<Rigidbody>().linearVelocity;
+               GetComponent<Rigidbody>().AddForce(velociteActuelle * 5f, ForceMode.Force);
+               nombreDeBonds = 0;
+           }
+       }
+
+       if (infoCollisions.gameObject.tag == "Barre" || infoCollisions.gameObject.tag == "Murs") Shake_Rpc();
+   }
         
-    }
+    /* Fonction RPC pour faire bouger la caméra
+   - Appelée par le serveur pour tous les clients */
+   [Rpc(SendTo.Everyone)]
+   private void Shake_Rpc()
+   {
+       if (camShaker == null) return;
+       camShaker.Shake(0.2f, 0.2f, 20f);
+   }
+
 
     
     
